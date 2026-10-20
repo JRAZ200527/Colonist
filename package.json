@@ -1,0 +1,26 @@
+{
+  "name": "colonist-es",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Réplica de Colonist.io (Catan en línea) en español",
+  "type": "module",
+  "packageManager": "pnpm@12.14.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "predev": "pnpm --filter \"@colonist/bots...\" build",
+    "dev": "pnpm -r --parallel dev",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:cobertura": "vitest run --coverage",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@vitest/coverage-v8": "^5.0.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

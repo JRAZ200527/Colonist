@@ -1,0 +1,35 @@
+{
+  "name": "@colonist/servidor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Servidor multijugador autoritativo (Fastify + WebSockets) para Render",
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "prisma generate && tsc -p tsconfig.json",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "start:produccion": "prisma migrate deploy && node dist/index.js",
+    "db:migrar": "prisma migrate dev",
+    "db:local": "prisma dev",
+    "typecheck": "prisma generate && tsc -p tsconfig.json --noEmit && tsc -p pruebas/tsconfig.json"
+  },
+  "dependencies": {
+    "@colonist/bots": "workspace:*",
+    "@colonist/motor-compartido": "workspace:*",
+    "@fastify/cors": "^11.3.1",
+    "@fastify/websocket": "^11.3.4",
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "^7.10.1",
+    "fastify": "^5.12.7",
+    "pg": "^8.23.1",
+    "prisma": "^7.10.1",
+    "ws": "^8.22.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1",
+    "@types/ws": "^8.18.2",
+    "tsx": "^4.23.15"
+  }
+}

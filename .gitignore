@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.ejemplo
+*.log
+.DS_Store
+.vite/
+# Configuración local del editor y de Claude Code
+.claude/
+# Cliente de Prisma generado (se regenera al compilar)
+packages/servidor/src/generado/

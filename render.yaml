@@ -1,0 +1,64 @@
+# Blueprint de Render: despliega servidor, cliente y base de datos con un clic.
+# Documentación: https://render.com/docs/blueprint-spec
+#
+# Notas del plan gratuito de Render:
+# - El servidor se duerme tras 15 minutos sin visitas; la primera conexión tarda
+#   unos segundos en despertarlo (el cliente reconecta solo).
+# - La base de datos gratuita caduca a los 30 días: cámbiala a un plan de pago
+#   para conservar el ranking.
+
+services:
+  # Servicio 1: servidor de juego (HTTP + WebSockets).
+  - type: web
+    name: colonist-servidor
+    runtime: node
+    plan: free
+    region: oregon
+    # Se instala la versión exacta de pnpm del repositorio y se compilan el motor,
+    # los bots y el servidor (que genera el cliente de Prisma).
+    buildCommand: npm install -g pnpm@12.14.0 && pnpm install --frozen-lockfile && pnpm --filter "@colonist/servidor..." build
+    # Aplica las migraciones pendientes de la base de datos y arranca el servidor.
+    startCommand: cd packages/servidor && npx prisma migrate deploy && node dist/index.js
+    healthCheckPath: /salud
+    envVars:
+      - key: NODE_VERSION
+        value: "24.22.0"
+      # PORT lo asigna Render automáticamente; el servidor lo lee de process.env.PORT.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: colonist-db
+          property: connectionString
+      # Orígenes extra para CORS (por ejemplo un dominio propio), separados por comas.
+      - key: CORS_ORIGENES_EXTRA
+        sync: false
+
+  # Servicio 2: cliente web estático (React + PixiJS).
+  - type: web
+    name: colonist-cliente
+    runtime: static
+    buildCommand: npm install -g pnpm@12.14.0 && pnpm install --frozen-lockfile && pnpm --filter "@colonist/cliente..." build
+    staticPublishPath: packages/cliente/dist
+    envVars:
+      - key: NODE_VERSION
+        value: "24.22.0"
+      # Render inyecta el nombre del servicio del servidor; el cliente lo completa
+      # como wss://<nombre>.onrender.com/ws (ver packages/cliente/src/configuracion.ts).
+      # Si el servidor acaba con otra dirección, pon aquí la URL completa (wss://...).
+      - key: VITE_WS_URL
+        fromService:
+          type: web
+          name: colonist-servidor
+          property: host
+    routes:
+      # Aplicación de una sola página: todas las rutas sirven index.html.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  # Servicio 3: PostgreSQL administrado.
+  - name: colonist-db
+    databaseName: colonist
+    user: colonist
+    plan: free
+    region: oregon

@@ -1,0 +1,52 @@
+// Esquema de la base de datos (PostgreSQL en Render).
+// La URL de conexión se configura en prisma.config.ts a partir de DATABASE_URL.
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generado/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Jugador identificado por su nombre. Guarda su puntuación Elo y estadísticas.
+model Usuario {
+  id               String          @id @default(uuid())
+  nombre           String          @unique
+  elo              Int             @default(1200)
+  partidasJugadas  Int             @default(0)
+  partidasGanadas  Int             @default(0)
+  creadoEn         DateTime        @default(now())
+  actualizadoEn    DateTime        @updatedAt
+  participaciones  Participacion[]
+}
+
+/// Partida terminada (las partidas en curso viven en la memoria del servidor).
+model Partida {
+  id              String          @id @default(uuid())
+  plantilla       String
+  numeroJugadores Int
+  turnos          Int
+  ganadorNombre   String
+  terminadaEn     DateTime        @default(now())
+  participaciones Participacion[]
+}
+
+/// Resultado de un jugador humano en una partida.
+model Participacion {
+  id          String  @id @default(uuid())
+  partidaId   String
+  usuarioId   String
+  puntos      Int
+  posicion    Int
+  eloAntes    Int
+  eloDespues  Int
+  partida     Partida @relation(fields: [partidaId], references: [id], onDelete: Cascade)
+  usuario     Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@unique([partidaId, usuarioId])
+  @@index([usuarioId])
+}

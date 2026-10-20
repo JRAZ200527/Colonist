@@ -1,0 +1,8 @@
+packages:
+  - "packages/*"
+
+# Dependencias autorizadas a ejecutar scripts de instalación
+allowBuilds:
+  esbuild: true
+  prisma: true
+  "@prisma/engines": true
