@@ -17,8 +17,8 @@ services:
     # Se instala la versión exacta de pnpm del repositorio y se compilan el motor,
     # los bots y el servidor (que genera el cliente de Prisma).
     buildCommand: npm install -g pnpm@12.14.0 && pnpm install --frozen-lockfile && pnpm --filter "@colonist/servidor..." build
-    # Aplica las migraciones pendientes de la base de datos y arranca el servidor.
-    startCommand: cd packages/servidor && npx prisma migrate deploy && node dist/index.js
+    # Aplica las migraciones pendientes (si hay base de datos) y arranca el servidor.
+    startCommand: cd packages/servidor && if [ -n "$DATABASE_URL" ]; then npx prisma migrate deploy; fi && node dist/index.js
     healthCheckPath: /salud
     envVars:
       - key: NODE_VERSION
